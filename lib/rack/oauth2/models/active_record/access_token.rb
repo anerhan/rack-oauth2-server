@@ -41,7 +41,7 @@ module Rack
               identity: identity,
               client_id: client.id,
               scope: scope.join(",")
-            }).not(channel: nil).first || create_token_for(client, scope, identity, expires)
+            }).where.not(channel: nil).first || create_token_for(client, scope, identity, expires)
           end
 
           def when_expires(expires)
