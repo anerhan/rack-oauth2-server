@@ -15,6 +15,7 @@ module Rack
         }
 
         validates_uniqueness_of :token
+        validates_uniqueness_of :channel, allow_nil: true
         belongs_to :client
 
         after_initialize :set_default_values
@@ -145,6 +146,7 @@ module Rack
 
           self.expires_at = self.class.when_expires(Server.options.expires_in)
           self.token      = Server.secure_random
+          self.channel    = Server.secure_random
           self.scope      = scope
           self.revoked    = nil
         end
