@@ -24,7 +24,7 @@ module Rack
 
             token = collection.find_one({
               :$or=>[{:expires_at=>nil}, {:expires_at=>{:$gt=>Time.now.to_i}}],
-              :identity=>identity, :scope=>scope,
+              :identity=>identity, :scope=>scope, channel: {$ne : null},
               :client_id=>client.id, :revoked=>nil})
 
             unless token

@@ -26,7 +26,7 @@ module Rack
 
             token = first(:expires_at => nil, :expires_at.gt => Time.now,
               :identity => identity, :scope => scope, :client => client,
-              :revoked => nil)
+              :revoked => nil, :channel.not => nil)
 
             unless token
               return create_token_for(client, scope, identity, expires)
