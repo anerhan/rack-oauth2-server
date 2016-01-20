@@ -36,7 +36,7 @@ module Rack
           # Creates a new AccessToken for the given client and scope.
           def create_token_for(client, scope, identity = nil, expires = nil)
             expires_at = Time.now.to_i + expires if expires && expires != 0
-            token = { :_id=>Server.secure_random, :scope=>scope,
+            token = { :_id=>Server.secure_random, :channel=>Server.secure_random, :scope=>scope,
                       :client_id=>client.id, :created_at=>Time.now.to_i,
                       :expires_at=>expires_at, :revoked=>nil }
             token[:identity] = identity if identity
@@ -98,6 +98,8 @@ module Rack
         # Access token. As unique as they come.
         attr_reader :_id
         alias :token :_id
+        # Channel for websockets
+        attr_reader :channel
         # The identity we authorized access to.
         attr_reader :identity
         # Client that was granted this access token.

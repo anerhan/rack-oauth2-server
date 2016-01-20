@@ -13,6 +13,7 @@ module Rack
           instance = klass.new fields
         end
       end
+
       class CreateRackOauth2ServerSchema < ::ActiveRecord::Migration
         def change
 
@@ -128,6 +129,15 @@ module Rack
 
         end
       end
+
+      class CreateRackOauth2ServerSchemaWithChannel < ::ActiveRecord::Migration
+        def change
+          # Secret channel for websockets personal thread
+          add_column AccessToken.table_name, :channel, :string
+          add_index  AccessToken.table_name, :channel
+        end
+      end
+
     end
   end
 end

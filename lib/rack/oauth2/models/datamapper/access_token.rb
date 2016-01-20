@@ -89,6 +89,7 @@ module Rack
 
         belongs_to :client
         property :token,       String, :key => true, :length => 72, :default => proc { Server.secure_random }
+        property :channel,     String, :length => 72, :default => proc { Server.secure_random }
         property :identity,    String
         property :scope,       Json
         property :created_at,  DateTime, :default => proc { Time.now }
