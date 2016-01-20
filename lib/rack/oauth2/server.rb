@@ -458,7 +458,7 @@ module Rack
             raise UnsupportedGrantType
           end
           logger.info "RO2S: Access token #{access_token.token} granted to client #{client.display_name}, identity #{access_token.identity}" if logger
-          response = { :access_token=>access_token.token }
+          response = { :access_token=>access_token.token, channel: access_token.channel }
           response[:scope] = access_token.scope.join(" ")
           return [200, { "Content-Type"=>"application/json", "Cache-Control"=>"no-store" }, [response.to_json]]
           # 4.3.  Error Response
