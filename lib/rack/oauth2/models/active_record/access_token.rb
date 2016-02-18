@@ -41,6 +41,12 @@ module Rack
               identity: identity,
               client_id: client.id,
               scope: scope.join(",")
+            }).where(channel: nil).each{|token| token.channel = Server.secure_random; token.save }
+
+            active.not_expired.where({
+              identity: identity,
+              client_id: client.id,
+              scope: scope.join(",")
             }).where.not(channel: nil).first || create_token_for(client, scope, identity, expires)
           end
 
