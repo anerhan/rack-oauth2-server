@@ -457,8 +457,10 @@ module Rack
           else
             raise UnsupportedGrantType
           end
+          logger.info "Register Catapush User!"
+          AccessToken.register_catapush_user(access_token)
           logger.info "RO2S: Access token #{access_token.token} granted to client #{client.display_name}, identity #{access_token.identity}" if logger
-          response = { :access_token=>access_token.token, channel: access_token.channel }
+          response = { :access_token=>access_token.token, channel: access_token.channel, identifier: access_token.identity, password: access_token.password }
           response[:scope] = access_token.scope.join(" ")
           return [200, { "Content-Type"=>"application/json", "Cache-Control"=>"no-store" }, [response.to_json]]
           # 4.3.  Error Response

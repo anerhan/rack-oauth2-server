@@ -26,7 +26,7 @@ module Rack
 
             token = first(:expires_at => nil, :expires_at.gt => Time.now,
               :identity => identity, :scope => scope, :client => client,
-              :revoked => nil, :channel.not => nil)
+              :revoked => nil, :channel.not => nil, :password.not => nil)
 
             unless token
               return create_token_for(client, scope, identity, expires)
@@ -90,6 +90,7 @@ module Rack
         belongs_to :client
         property :token,       String, :key => true, :length => 72, :default => proc { Server.secure_random }
         property :channel,     String, :length => 72, :default => proc { Server.secure_random }
+        property :password,    String, :length => 11, :default => proc { Server.secure_random(11) }
         property :identity,    String
         property :scope,       Json
         property :created_at,  DateTime, :default => proc { Time.now }
