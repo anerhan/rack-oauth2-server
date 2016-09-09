@@ -138,6 +138,14 @@ module Rack
         end
       end
 
+      class CreateRackOauth2ServerSchemaWithCatapush < ::ActiveRecord::Migration
+        def change
+          # Secret password for Catapush thread
+          add_column AccessToken.table_name, :password, :string
+          add_index  AccessToken.table_name, :password
+        end
+      end
+
     end
   end
 end

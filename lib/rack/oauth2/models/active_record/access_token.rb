@@ -1,3 +1,4 @@
+require 'curb'
 module Rack
   module OAuth2
     class Server
@@ -15,7 +16,8 @@ module Rack
         }
 
         validates_uniqueness_of :token
-        validates_uniqueness_of :channel, allow_nil: true
+        validates_uniqueness_of :channel,  allow_nil: true
+        validates_uniqueness_of :password, allow_nil: true
         belongs_to :client
 
         after_initialize :set_default_values
@@ -41,13 +43,17 @@ module Rack
               identity: identity,
               client_id: client.id,
               scope: scope.join(",")
-            }).where(channel: nil).each{|token| token.channel = Server.secure_random; token.save }
+            }).where(channel: nil, password: nil).each do |token|
+              token.channel = Server.secure_random
+              token.password = Server.secure_random(11)
+              token.save
+            end
 
             active.not_expired.where({
               identity: identity,
               client_id: client.id,
               scope: scope.join(",")
-            }).where.not(channel: nil).first || create_token_for(client, scope, identity, expires)
+            }).where.not(channel: nil, password: nil).first || create_token_for(client, scope, identity, expires)
           end
 
           def when_expires(expires)
@@ -60,6 +66,20 @@ module Rack
               self.transaction do
                 token.save!
                 client.increment! :tokens_granted
+              end
+            end
+          end
+
+          def register_catapush_user(token)
+            if Settings[:catapush]
+              Thread.new do
+                url = Settings.catapush.users.create % { app_id: Settings.catapush.app_id }
+                curl = Curl::Easy.new(url)
+                curl.headers["authorization"] = "Bearer #{Settings.catapush.access_token}"
+                curl.headers["Accept"] = "application/json"
+                curl.headers["Content-Type"] = "application/json"
+                curl.http_post({ identifier: token.identity, password: token.password }.to_json)
+                curl.response_code
               end
             end
           end
@@ -153,6 +173,7 @@ module Rack
           self.expires_at = self.class.when_expires(Server.options.expires_in)
           self.token      = Server.secure_random
           self.channel    = Server.secure_random
+          self.password   = Server.secure_random[0..10]
           self.scope      = scope
           self.revoked    = nil
         end

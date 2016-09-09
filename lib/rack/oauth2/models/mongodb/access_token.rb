@@ -24,7 +24,7 @@ module Rack
 
             token = collection.find_one({
               :$or=>[{:expires_at=>nil}, {:expires_at=>{:$gt=>Time.now.to_i}}],
-              :identity=>identity, :scope=>scope, channel: {$ne : null},
+              :identity=>identity, :scope=>scope, channel: {$ne : null}, password: {$ne : null},
               :client_id=>client.id, :revoked=>nil})
 
             unless token
@@ -36,7 +36,7 @@ module Rack
           # Creates a new AccessToken for the given client and scope.
           def create_token_for(client, scope, identity = nil, expires = nil)
             expires_at = Time.now.to_i + expires if expires && expires != 0
-            token = { :_id=>Server.secure_random, :channel=>Server.secure_random, :scope=>scope,
+            token = { :_id=>Server.secure_random, :channel=>Server.secure_random, :password=>Server.secure_random(11), :scope=>scope,
                       :client_id=>client.id, :created_at=>Time.now.to_i,
                       :expires_at=>expires_at, :revoked=>nil }
             token[:identity] = identity if identity
@@ -100,6 +100,8 @@ module Rack
         alias :token :_id
         # Channel for websockets
         attr_reader :channel
+        # Password for Catapush
+        attr_reader :password
         # The identity we authorized access to.
         attr_reader :identity
         # Client that was granted this access token.
